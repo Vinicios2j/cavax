@@ -1,7 +1,0 @@
-Site público da CAVAX (gerado automaticamente pelo painel).
-Site: https://cavax.com.br
-API/painel: https://api.cavax.com.br
-
-Envie TODO o conteúdo desta pasta para a raiz do repositório do GitHub Pages.
-Produtos, portfólio, conta e pedidos vêm da API em tempo real.
-Gere de novo (Painel > Configurações > Site no GitHub) quando mudar textos, contatos, logo ou configurações.
