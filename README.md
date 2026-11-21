@@ -1,7 +1,7 @@
 # CAVAX — Tecnologia que transforma ideias em soluções digitais.
 
 <p align="center">
-  <img src="assets/logo.png" alt="CAVAX Tecnologia" width="260">
+  <img src="assets/images/cavax-logo.webp" alt="CAVAX Tecnologia" width="260">
 </p>
 
 <p align="center">
