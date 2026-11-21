@@ -31,7 +31,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="/assets/css/main.css?v=6396b113e1">
-  <link rel="stylesheet" href="/assets/css/store.css?v=d730afd2f1">
+  <link rel="stylesheet" href="/assets/css/store.css?v=f0c3e759e2">
   
 </head>
 <body class="page-account">
@@ -80,25 +80,84 @@
       <div class="wrap account-wrap" data-account>
         <div class="account-guest" data-guest hidden>
           <p class="notice" data-checkout-notice hidden>Para finalizar a compra, entre na sua conta ou crie uma agora. Seu carrinho continua salvo.</p>
-          <div class="auth-grid">
-            <form class="auth-card" id="loginForm" novalidate>
-              <h2>Entrar</h2>
-              <div class="field"><label for="l-email">E-mail</label><input id="l-email" name="email" type="email" autocomplete="email" required><p class="field-error" data-error-for="email"></p></div>
-              <div class="field"><label for="l-password">Senha</label><input id="l-password" name="password" type="password" autocomplete="current-password" required><p class="field-error" data-error-for="password"></p></div>
-              <p class="form-status" role="status" aria-live="polite"></p>
-              <button class="btn btn-primary btn-block" type="submit">Entrar</button>
-            </form>
-            <form class="auth-card" id="registerForm" novalidate>
-              <h2>Criar conta</h2>
-              <div class="field"><label for="r-name">Nome completo</label><input id="r-name" name="name" autocomplete="name" required maxlength="120"><p class="field-error" data-error-for="name"></p></div>
-              <div class="field"><label for="r-email">E-mail</label><input id="r-email" name="email" type="email" autocomplete="email" required><p class="field-error" data-error-for="email"></p></div>
-              <div class="field"><label for="r-phone">Telefone <span class="optional">(opcional)</span></label><input id="r-phone" name="phone" type="tel" autocomplete="tel"><p class="field-error" data-error-for="phone"></p></div>
-              <div class="field"><label for="r-password">Senha</label><input id="r-password" name="password" type="password" autocomplete="new-password" required minlength="10" aria-describedby="pw-hint"><small id="pw-hint" class="hint">Mínimo de 10 caracteres, com letras e números.</small><p class="field-error" data-error-for="password"></p></div>
-              <div class="field field-check"><input type="checkbox" id="r-privacy" name="acceptPrivacy" required><label for="r-privacy">Li e aceito a <a href="/privacidade/" target="_blank">Política de Privacidade</a>.</label><p class="field-error" data-error-for="acceptPrivacy"></p></div>
-              <div class="field field-check"><input type="checkbox" id="r-marketing" name="marketingConsent"><label for="r-marketing">Quero receber novidades da CAVAX (opcional).</label></div>
-              <p class="form-status" role="status" aria-live="polite"></p>
-              <button class="btn btn-outline btn-block" type="submit">Criar conta</button>
-            </form>
+          <div class="auth-shell" data-auth-shell data-mode="login">
+            <section class="auth-pane auth-pane-login" data-pane="login" aria-labelledby="loginTitle">
+              <form class="auth-form" id="loginForm" novalidate autocomplete="on">
+                <span class="auth-kicker">BEM-VINDO DE VOLTA</span>
+                <h2 id="loginTitle">Entrar na sua conta</h2>
+                <p class="auth-lead">Acompanhe pedidos, fale com a equipe e compre mais rápido.</p>
+                <div class="field"><label for="l-email">E-mail</label><input id="l-email" name="email" type="email" autocomplete="username" inputmode="email" placeholder="voce@email.com" required maxlength="160"><p class="field-error" data-error-for="email"></p></div>
+                <div class="field"><label for="l-password">Senha</label><input id="l-password" name="password" type="password" autocomplete="current-password" placeholder="Sua senha" required maxlength="200"><p class="field-error" data-error-for="password"></p></div>
+                <div class="auth-row"><button type="button" class="text-link" data-auth-go="forgot">Esqueci minha senha</button></div>
+                <p class="form-status" role="status" aria-live="polite"></p>
+                <button class="btn btn-primary btn-block" type="submit">Entrar</button>
+                <p class="auth-switch">Ainda não tem conta? <button type="button" class="text-link" data-auth-go="register">Criar conta</button></p>
+              </form>
+
+              <form class="auth-form" id="forgotForm" novalidate hidden>
+                <button type="button" class="text-link back-link" data-auth-go="login">← Voltar para o login</button>
+                <span class="auth-kicker">RECUPERAR ACESSO</span>
+                <h2>Esqueci minha senha</h2>
+                <div data-forgot-step="request">
+                  <p class="auth-lead">Informe o e-mail da sua conta e escolha onde quer receber o código de 6 números.</p>
+                  <div class="field"><label for="f-email">E-mail da conta</label><input id="f-email" name="email" type="email" autocomplete="username" inputmode="email" placeholder="voce@email.com" maxlength="160"><p class="field-error" data-error-for="email"></p></div>
+                  <fieldset class="code-channels">
+                    <legend>Receber o código por</legend>
+                    <div class="channel-options">
+                      <label class="channel-option"><input type="radio" name="channel" value="email" checked><span><strong>E-mail</strong><small>No e-mail cadastrado</small></span></label>
+                      <label class="channel-option"><input type="radio" name="channel" value="whatsapp"><span><strong>WhatsApp</strong><small>No número cadastrado</small></span></label>
+                    </div>
+                    <p class="field-error" data-error-for="channel"></p>
+                  </fieldset>
+                  <button class="btn btn-primary btn-block" type="button" data-forgot-send>Enviar código</button>
+                </div>
+                <div data-forgot-step="reset" hidden>
+                  <p class="code-sent" data-forgot-sent></p>
+                  <div class="field"><label for="f-code">Código de 6 números</label><input id="f-code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000"><p class="field-error" data-error-for="code"></p></div>
+                  <div class="field"><label for="f-password">Nova senha</label><input id="f-password" name="password" type="password" autocomplete="new-password" maxlength="200" data-strength><small class="hint">Mínimo de 10 caracteres, com letras e números.</small><p class="field-error" data-error-for="password"></p></div>
+                  <div class="field"><label for="f-confirm">Confirme a nova senha</label><input id="f-confirm" name="passwordConfirm" type="password" autocomplete="new-password" maxlength="200"><p class="field-error" data-error-for="passwordConfirm"></p></div>
+                  <button class="btn btn-primary btn-block" type="submit">Redefinir senha</button>
+                  <div class="auth-row"><button class="text-link" type="button" data-forgot-resend disabled>Reenviar código</button><button class="text-link" type="button" data-forgot-change>Trocar e-mail ou canal</button></div>
+                </div>
+                <p class="form-status" role="status" aria-live="polite"></p>
+              </form>
+            </section>
+
+            <section class="auth-pane auth-pane-register" data-pane="register" aria-labelledby="registerTitle">
+              <form class="auth-form" id="registerForm" novalidate autocomplete="on">
+                <span class="auth-kicker">NOVO POR AQUI?</span>
+                <h2 id="registerTitle">Criar sua conta</h2>
+                <div class="field"><label for="r-name">Nome completo</label><input id="r-name" name="name" autocomplete="name" placeholder="Nome e sobrenome" required maxlength="120"><p class="field-error" data-error-for="name"></p></div>
+                <div class="field"><label for="r-email">E-mail</label><input id="r-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="voce@email.com" required maxlength="160"><p class="field-error" data-error-for="email"></p></div>
+                <div class="auth-cols">
+                  <div class="field"><label for="r-phone">Telefone / WhatsApp</label><input id="r-phone" name="phone" type="tel" autocomplete="tel-national" inputmode="numeric" placeholder="(00) 00000-0000" required maxlength="16" data-mask="phone"><p class="field-error" data-error-for="phone"></p></div>
+                  <div class="field"><label for="r-document">CPF</label><input id="r-document" name="document" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" required maxlength="14" data-mask="cpf"><p class="field-error" data-error-for="document"></p></div>
+                </div>
+                <div class="field"><label for="r-password">Senha</label><input id="r-password" name="password" type="password" autocomplete="new-password" required minlength="10" maxlength="200" aria-describedby="pw-hint" data-strength><small id="pw-hint" class="hint">Mínimo de 10 caracteres, com letras e números.</small><p class="field-error" data-error-for="password"></p></div>
+                <div class="field"><label for="r-confirm">Confirmar senha</label><input id="r-confirm" name="passwordConfirm" type="password" autocomplete="new-password" required maxlength="200"><p class="field-error" data-error-for="passwordConfirm"></p></div>
+                <div class="field field-check"><input type="checkbox" id="r-privacy" name="acceptPrivacy" required><label for="r-privacy">Li e aceito a <a href="/privacidade/" target="_blank">Política de Privacidade</a> e os <a href="/termos-de-uso/" target="_blank">Termos de Uso</a>.</label><p class="field-error" data-error-for="acceptPrivacy"></p></div>
+                <div class="field field-check"><input type="checkbox" id="r-marketing" name="marketingConsent"><label for="r-marketing">Quero receber novidades da CAVAX (opcional).</label></div>
+                <p class="form-status" role="status" aria-live="polite"></p>
+                <button class="btn btn-primary btn-block" type="submit">Criar conta</button>
+                <p class="auth-switch">Já tem conta? <button type="button" class="text-link" data-auth-go="login">Entrar</button></p>
+              </form>
+            </section>
+
+            <aside class="auth-media" aria-hidden="true">
+              <picture><source srcset="/assets/images/cavax-auth.webp" type="image/webp"><img src="/assets/images/cavax-auth.jpg" alt="" width="960" height="1200" decoding="async"></picture>
+              <div class="auth-media-copy">
+                <div class="auth-media-text" data-media="login">
+                  <h3>Ainda não tem conta?</h3>
+                  <p>Cadastre-se em menos de um minuto e acompanhe seus pedidos em tempo real.</p>
+                  <button type="button" class="btn btn-outline" data-auth-go="register" tabindex="-1">Criar conta</button>
+                </div>
+                <div class="auth-media-text" data-media="register">
+                  <h3>Já é cliente CAVAX?</h3>
+                  <p>Entre com seu e-mail e senha para ver pedidos, atendimento e muito mais.</p>
+                  <button type="button" class="btn btn-outline" data-auth-go="login" tabindex="-1">Entrar</button>
+                </div>
+              </div>
+            </aside>
           </div>
         </div>
 
@@ -197,7 +256,8 @@
               <h3>Meus dados</h3>
               <div class="field"><label for="p-name">Nome completo</label><input id="p-name" name="name" maxlength="120" required><p class="field-error" data-error-for="name"></p></div>
               <div class="field"><label for="p-email">E-mail</label><input id="p-email" type="email" readonly aria-readonly="true"><small class="hint">Para alterar o e-mail, fale com a equipe pelo atendimento.</small></div>
-              <div class="field"><label for="p-phone">Telefone / WhatsApp</label><input id="p-phone" name="phone" type="tel" maxlength="20"><p class="field-error" data-error-for="phone"></p></div>
+              <div class="field"><label for="p-phone">Telefone / WhatsApp</label><input id="p-phone" name="phone" type="tel" inputmode="numeric" maxlength="16" required data-mask="phone" placeholder="(00) 00000-0000"><p class="field-error" data-error-for="phone"></p></div>
+              <div class="field"><label for="p-document">CPF</label><input id="p-document" readonly aria-readonly="true"><small class="hint">Para corrigir o CPF, fale com a equipe pelo atendimento.</small></div>
               <p class="form-status" role="status" aria-live="polite"></p>
               <button class="btn btn-primary" type="submit">Salvar</button>
               <p class="hint">Seus dados são tratados conforme a <a href="/privacidade/">Política de Privacidade</a>. Saiba como exercer seus direitos em <a href="/lgpd/">Seus dados (LGPD)</a>.</p>
@@ -306,6 +366,6 @@
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
   <script type="module" src="/assets/js/main.js?v=55059074e4"></script>
-  <script type="module" src="/assets/js/account.js?v=173685e2c4"></script>
+  <script type="module" src="/assets/js/account.js?v=602409ade4"></script>
 </body>
 </html>

@@ -568,7 +568,7 @@ const profile = document.getElementById('profileForm');
 profile.addEventListener('submit', async (e) => {
   e.preventDefault();
   try {
-    const { data } = await api('/customers/me', { method: 'PUT', body: { name: profile.name.value.trim(), phone: profile.phone.value.trim() || null } });
+    const { data } = await api('/customers/me', { method: 'PUT', body: { name: profile.name.value.trim(), phone: onlyDigits(profile.phone.value) } });
     me = data.customer;
     window.dispatchEvent(new CustomEvent('cavax:account', { detail: me }));
     fillProfileHeader(me);
@@ -684,7 +684,8 @@ async function showLogged(customer) {
   fillProfileHeader(customer);
   document.body.classList.add('is-logged');
   profile.name.value = customer.name;
-  profile.phone.value = customer.phone || '';
+  profile.phone.value = maskPhone(customer.phone || '');
+  document.getElementById('p-document').value = customer.document ? maskCpf(customer.document).replace(/^(\d{3})\.\d{3}\.(\d{3})/, '$1.***.$2') : 'Não informado';
   document.getElementById('p-email').value = customer.email;
   loadPasswordChannels();
   if (!botLog.childElementCount) {
@@ -698,55 +699,348 @@ async function showLogged(customer) {
   openTab(location.hash.slice(1) || 'inicio');
 }
 
-function showGuest() {
-  document.body.classList.remove('is-logged');
-  window.dispatchEvent(new CustomEvent('cavax:account', { detail: null }));
-  logged.hidden = true;
-  guest.hidden = false;
-  stopTicketPolling();
-  if (params.get('motivo') === 'checkout') $('[data-checkout-notice]').hidden = false;
+// ---------------- Login, cadastro e "Esqueci minha senha" ----------------
+const authShell = document.querySelector('[data-auth-shell]');
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+const forgotForm = document.getElementById('forgotForm');
+const onlyDigits = (v) => String(v || '').replace(/\D/g, '');
+
+function maskPhone(v) {
+  const d = onlyDigits(v).slice(0, 11);
+  if (d.length <= 2) return d.length ? `(${d}` : '';
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
+function maskCpf(v) {
+  const d = onlyDigits(v).slice(0, 11);
+  return d.replace(/^(\d{3})(\d)/, '$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3').replace(/\.(\d{3})(\d{1,2})$/, '.$1-$2');
+}
+function isValidCpf(value) {
+  const cpf = onlyDigits(value);
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+  for (const len of [9, 10]) {
+    let sum = 0;
+    for (let i = 0; i < len; i += 1) sum += Number(cpf[i]) * (len + 1 - i);
+    if (((sum * 10) % 11) % 10 !== Number(cpf[len])) return false;
+  }
+  return true;
+}
+const MASKS = { phone: maskPhone, cpf: maskCpf };
+document.querySelectorAll('[data-mask]').forEach((input) => {
+  input.addEventListener('input', () => (input.value = MASKS[input.dataset.mask](input.value)));
+});
+
+// Olho para mostrar/ocultar a senha em todos os campos de senha da página.
+const EYE = '<svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A10.9 10.9 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.1M6.1 6.2C3.5 8 2 12 2 12s3.6 7 10 7a9.7 9.7 0 0 0 4.4-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+function hidePasswords(scope = document) {
+  scope.querySelectorAll('.pw-toggle[aria-pressed="true"]').forEach((btn) => btn.click());
+}
+document.querySelectorAll('input[type="password"]').forEach((input) => {
+  const wrap = document.createElement('span');
+  wrap.className = 'pw-wrap';
+  input.parentNode.insertBefore(wrap, input);
+  wrap.appendChild(input);
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'pw-toggle';
+  btn.setAttribute('aria-label', 'Mostrar senha');
+  btn.setAttribute('aria-pressed', 'false');
+  btn.innerHTML = EYE;
+  btn.addEventListener('click', () => {
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.setAttribute('aria-pressed', String(show));
+    btn.setAttribute('aria-label', show ? 'Ocultar senha' : 'Mostrar senha');
+  });
+  wrap.appendChild(btn);
+  if (input.hasAttribute('data-strength')) {
+    const meter = document.createElement('div');
+    meter.className = 'pw-meter';
+    meter.setAttribute('aria-hidden', 'true');
+    meter.innerHTML = '<i></i><i></i><i></i><i></i>';
+    wrap.after(meter);
+    input.addEventListener('input', () => {
+      const v = input.value;
+      let level = 0;
+      if (v.length) level = 1;
+      if (v.length >= 10 && /[A-Za-z]/.test(v) && /\d/.test(v)) level = 2;
+      if (level === 2 && (v.length >= 12 || /[^A-Za-z0-9]/.test(v))) level = 3;
+      if (level >= 2 && v.length >= 14 && /[a-z]/.test(v) && /[A-Z]/.test(v) && /[^A-Za-z0-9]/.test(v)) level = 4;
+      meter.dataset.level = String(level);
+    });
+  }
+});
+
+/** Deixa um formulário em branco: valores, erros, mensagens, senhas ocultas e medidor zerado. */
+function clearForm(form) {
+  if (!form) return;
+  form.reset();
+  form.querySelectorAll('input:not([type=checkbox]):not([type=radio])').forEach((i) => (i.value = ''));
+  form.querySelectorAll('.pw-meter').forEach((m) => delete m.dataset.level);
+  hidePasswords(form);
+  showFieldErrors(form, []);
+  setStatus(form, '');
 }
 
-function handleAuth(form, path, build) {
+let forgotTimer = null;
+function resetForgot() {
+  clearInterval(forgotTimer);
+  clearForm(forgotForm);
+  forgotForm.querySelector('[data-forgot-step="request"]').hidden = false;
+  forgotForm.querySelector('[data-forgot-step="reset"]').hidden = true;
+  const resend = forgotForm.querySelector('[data-forgot-resend]');
+  resend.disabled = true;
+  resend.textContent = 'Reenviar código';
+}
+
+function clearAuthForms() {
+  clearForm(loginForm);
+  clearForm(registerForm);
+  resetForgot();
+}
+
+function setAuthMode(mode, { focus = true } = {}) {
+  const register = mode === 'register';
+  authShell.dataset.mode = register ? 'register' : 'login';
+  loginForm.hidden = mode === 'forgot';
+  forgotForm.hidden = mode !== 'forgot';
+  if (mode !== 'forgot') resetForgot();
+  // Campos do painel escondido saem da navegação por teclado e leitores de tela.
+  authShell.querySelector('[data-pane="login"]').inert = register;
+  authShell.querySelector('[data-pane="register"]').inert = !register;
+  if (focus) {
+    const target = register ? registerForm.name : mode === 'forgot' ? forgotForm.email : loginForm.email;
+    setTimeout(() => target.focus({ preventScroll: true }), register ? 450 : 50);
+  }
+}
+document.addEventListener('click', (e) => {
+  const go = e.target.closest('[data-auth-go]');
+  if (!go) return;
+  e.preventDefault();
+  const mode = go.dataset.authGo;
+  if (mode === 'forgot' && loginForm.email.value.trim()) forgotForm.email.value = loginForm.email.value.trim();
+  setAuthMode(mode);
+});
+setAuthMode(params.get('modo') === 'cadastro' ? 'register' : 'login', { focus: false });
+
+function handleAuth(form, path, build, check) {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    const local = check ? check(form) : [];
+    if (local.length) {
+      showFieldErrors(form, local);
+      setStatus(form, 'Revise os campos destacados.', 'error');
+      return;
+    }
     const button = form.querySelector('button[type="submit"]');
     button.disabled = true;
     setStatus(form, 'Aguarde…');
     try {
       const { data } = await api(path, { method: 'POST', body: build(form) });
       setCsrf(data.csrfToken);
+      clearAuthForms();
       if (safeBack) {
         window.location.href = safeBack;
         return;
       }
-      setStatus(form, '');
       showLogged(data.customer);
     } catch (error) {
       const shown = showFieldErrors(form, error.details);
       setStatus(form, shown ? 'Revise os campos destacados.' : error.message, 'error');
+      if (form === loginForm) form.password.value = '';
     } finally {
       button.disabled = false;
     }
   });
 }
 
-handleAuth(document.getElementById('loginForm'), '/customers/login', (f) => ({ email: f.email.value.trim(), password: f.password.value }));
-handleAuth(document.getElementById('registerForm'), '/customers/register', (f) => ({
-  name: f.name.value.trim(),
-  email: f.email.value.trim(),
-  phone: f.phone.value.trim() || null,
-  password: f.password.value,
-  acceptPrivacy: f.acceptPrivacy.checked,
-  marketingConsent: f.marketingConsent.checked
-}));
+handleAuth(
+  loginForm,
+  '/customers/login',
+  (f) => ({ email: f.email.value.trim(), password: f.password.value }),
+  (f) => {
+    const errs = [];
+    if (!f.email.value.trim()) errs.push({ field: 'email', message: 'Informe o e-mail.' });
+    if (!f.password.value) errs.push({ field: 'password', message: 'Informe a senha.' });
+    return errs;
+  }
+);
+
+function passwordIssues(pw, confirm) {
+  const errs = [];
+  if (pw.length < 10) errs.push({ field: 'password', message: 'A senha deve ter pelo menos 10 caracteres.' });
+  else if (!/[A-Za-z]/.test(pw) || !/\d/.test(pw)) errs.push({ field: 'password', message: 'A senha deve conter letras e números.' });
+  if (!confirm) errs.push({ field: 'passwordConfirm', message: 'Confirme a senha.' });
+  else if (pw !== confirm) errs.push({ field: 'passwordConfirm', message: 'As senhas não conferem.' });
+  return errs;
+}
+
+handleAuth(
+  registerForm,
+  '/customers/register',
+  (f) => ({
+    name: f.name.value.trim(),
+    email: f.email.value.trim(),
+    phone: onlyDigits(f.phone.value),
+    document: onlyDigits(f.document.value),
+    password: f.password.value,
+    passwordConfirm: f.passwordConfirm.value,
+    acceptPrivacy: f.acceptPrivacy.checked,
+    marketingConsent: f.marketingConsent.checked
+  }),
+  (f) => {
+    const errs = [];
+    const name = f.name.value.trim();
+    if (name.length < 3) errs.push({ field: 'name', message: 'Informe seu nome completo.' });
+    else if (name.split(/\s+/).length < 2) errs.push({ field: 'name', message: 'Informe nome e sobrenome.' });
+    if (!/^\S+@\S+\.\S+$/.test(f.email.value.trim())) errs.push({ field: 'email', message: 'Informe um e-mail válido.' });
+    const phone = onlyDigits(f.phone.value);
+    if (!phone) errs.push({ field: 'phone', message: 'Informe o telefone/WhatsApp.' });
+    else if (phone.length < 10 || phone.length > 11) errs.push({ field: 'phone', message: 'Telefone inválido (inclua o DDD).' });
+    if (!onlyDigits(f.document.value)) errs.push({ field: 'document', message: 'Informe o CPF.' });
+    else if (!isValidCpf(f.document.value)) errs.push({ field: 'document', message: 'CPF inválido.' });
+    errs.push(...passwordIssues(f.password.value, f.passwordConfirm.value));
+    if (!f.acceptPrivacy.checked) errs.push({ field: 'acceptPrivacy', message: 'É necessário aceitar a Política de Privacidade.' });
+    return errs;
+  }
+);
+
+// Esqueci minha senha
+const FORGOT_LABEL = { email: 'e-mail', whatsapp: 'WhatsApp' };
+function forgotCountdown(seconds) {
+  const btn = forgotForm.querySelector('[data-forgot-resend]');
+  clearInterval(forgotTimer);
+  let left = seconds;
+  btn.disabled = true;
+  btn.textContent = `Reenviar código (${left}s)`;
+  forgotTimer = setInterval(() => {
+    left -= 1;
+    if (left <= 0) {
+      clearInterval(forgotTimer);
+      btn.disabled = false;
+      btn.textContent = 'Reenviar código';
+    } else btn.textContent = `Reenviar código (${left}s)`;
+  }, 1000);
+}
+
+async function requestForgotCode() {
+  const email = forgotForm.email.value.trim();
+  const channel = forgotForm.querySelector('input[name=channel]:checked')?.value;
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    forgotForm.querySelector('[data-forgot-step="request"]').hidden = false;
+    forgotForm.querySelector('[data-forgot-step="reset"]').hidden = true;
+    showFieldErrors(forgotForm, [{ field: 'email', message: 'Informe um e-mail válido.' }]);
+    return;
+  }
+  const sendBtn = forgotForm.querySelector('[data-forgot-send]');
+  sendBtn.disabled = true;
+  setStatus(forgotForm, 'Enviando…');
+  try {
+    const { data } = await api('/customers/password/forgot', { method: 'POST', body: { email, channel } });
+    showFieldErrors(forgotForm, []);
+    setStatus(forgotForm, '');
+    forgotForm.querySelector('[data-forgot-step="request"]').hidden = true;
+    forgotForm.querySelector('[data-forgot-step="reset"]').hidden = false;
+    forgotForm.querySelector('[data-forgot-sent]').textContent =
+      `Se ${email} tiver uma conta na CAVAX, enviamos um código por ${FORGOT_LABEL[data.channel]}. Ele vale por ${data.expiresInMinutes} minutos. Não recebeu? Confira o spam ou peça pelo outro canal.`;
+    forgotCountdown(data.resendInSeconds);
+    forgotForm.code.focus();
+  } catch (error) {
+    const shown = showFieldErrors(forgotForm, error.details);
+    setStatus(forgotForm, shown ? 'Revise os campos destacados.' : error.message, 'error');
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+forgotForm.querySelector('[data-forgot-send]').addEventListener('click', requestForgotCode);
+forgotForm.querySelector('[data-forgot-resend]').addEventListener('click', requestForgotCode);
+forgotForm.querySelector('[data-forgot-change]').addEventListener('click', () => {
+  forgotForm.querySelector('[data-forgot-step="request"]').hidden = false;
+  forgotForm.querySelector('[data-forgot-step="reset"]').hidden = true;
+  setStatus(forgotForm, '');
+  forgotForm.email.focus();
+});
+forgotForm.email.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    requestForgotCode();
+  }
+});
+forgotForm.code.addEventListener('input', () => (forgotForm.code.value = forgotForm.code.value.replace(/\D/g, '').slice(0, 6)));
+forgotForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (forgotForm.querySelector('[data-forgot-step="reset"]').hidden) return requestForgotCode();
+  const errs = [];
+  if (!/^\d{6}$/.test(forgotForm.code.value)) errs.push({ field: 'code', message: 'Digite o código de 6 números.' });
+  errs.push(...passwordIssues(forgotForm.password.value, forgotForm.passwordConfirm.value));
+  if (errs.length) {
+    showFieldErrors(forgotForm, errs);
+    return setStatus(forgotForm, 'Revise os campos destacados.', 'error');
+  }
+  const button = forgotForm.querySelector('button[type="submit"]');
+  button.disabled = true;
+  setStatus(forgotForm, 'Aguarde…');
+  try {
+    const email = forgotForm.email.value.trim();
+    await api('/customers/password/reset', {
+      method: 'POST',
+      body: { email, code: forgotForm.code.value, password: forgotForm.password.value, passwordConfirm: forgotForm.passwordConfirm.value }
+    });
+    setAuthMode('login', { focus: false });
+    clearForm(loginForm);
+    loginForm.email.value = email;
+    setStatus(loginForm, 'Senha redefinida! Entre com a nova senha. Por segurança, desconectamos sua conta de todos os aparelhos.', 'success');
+    loginForm.password.focus();
+  } catch (error) {
+    const shown = showFieldErrors(forgotForm, error.details);
+    setStatus(forgotForm, shown ? 'Revise os campos destacados.' : error.message, 'error');
+  } finally {
+    button.disabled = false;
+  }
+});
+
+// Ao voltar pelo botão "voltar" do navegador (cache de página), nada digitado fica na tela.
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted && !me) clearAuthForms();
+});
+
+function showGuest() {
+  me = null;
+  dashboard = null;
+  currentTicket = null;
+  botContext = {};
+  document.body.classList.remove('is-logged');
+  window.dispatchEvent(new CustomEvent('cavax:account', { detail: null }));
+  logged.hidden = true;
+  guest.hidden = false;
+  stopTicketPolling();
+  clearInterval(resendTimer);
+  // Nada da conta anterior fica na página (formulários, conversa com o assistente, dados).
+  clearAuthForms();
+  setAuthMode('login', { focus: false });
+  ['profileForm', 'passwordForm'].forEach((id) => clearForm(document.getElementById(id)));
+  const pwCode = document.querySelector('#passwordForm [data-step="code"]');
+  if (pwCode) pwCode.hidden = true;
+  if (botLog) botLog.innerHTML = '';
+  ['[data-customer-name]', '[data-customer-fullname]', '[data-customer-email]', '[data-customer-initials]', '[data-member-since]'].forEach((sel) => {
+    const el = $(sel);
+    if (el) el.textContent = '';
+  });
+  if (params.get('motivo') === 'checkout') $('[data-checkout-notice]').hidden = false;
+}
 
 document.querySelector('[data-logout]')?.addEventListener('click', async () => {
   try {
     await api('/customers/logout', { method: 'POST', body: {} });
+  } catch {
+    /* a sessão local é encerrada mesmo se a rede falhar */
   } finally {
     setCsrf(null);
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
     showGuest();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 });
 
