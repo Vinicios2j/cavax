@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /conta/
+Disallow: /loja/carrinho/
+Disallow: /loja/checkout/
+Disallow: /loja/pedido/
+
+Sitemap: https://cavax.com.br/sitemap.xml
