@@ -98,7 +98,7 @@ Cada aplicação possui suas próprias necessidades, arquitetura, documentação
 **CAVAX Tecnologia**
 
 - Website: https://cavax.com.br
-- GitHub: https://github.com/SEU_USUARIO
+- GitHub: https://github.com/Vinicios2J
 - E-mail: noreply@vatec-os.site
 
 ---
