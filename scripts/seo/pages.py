@@ -1,0 +1,323 @@
+"""Conteúdo das páginas comerciais da CAVAX.
+
+Regras (veja .claude/skills/cavax-seo): sem preços, sem promessas de ranking ou prazo garantido,
+sem clientes/avaliações/endereços inventados. "form_service" deve ser EXATAMENTE uma opção do
+formulário de contato da home. Formatação permitida no texto: **negrito** e [texto](/link-interno).
+"""
+
+RELATED_LABELS = {
+    'criacao-de-sites': ('Criação de sites', 'Sites profissionais e institucionais para empresas.'),
+    'automacao-whatsapp': ('Automação de WhatsApp', 'Atendimento automatizado com a API oficial da Meta.'),
+    'desenvolvimento-de-sistemas': ('Desenvolvimento de sistemas', 'Software sob medida para organizar a sua operação.'),
+    'cavax-atendimento': ('CAVAX Atendimento', 'Nossa plataforma de atendimento no WhatsApp (em desenvolvimento).'),
+}
+
+METHOD = [
+    {'title': 'Entender', 'text': 'Conversamos sobre o seu negócio, o público e o objetivo do projeto. É aqui que definimos o que realmente precisa ser feito — e o que pode ficar para depois.'},
+    {'title': 'Planejar', 'text': 'Organizamos escopo, estrutura, tecnologia e etapas. Você recebe uma proposta com o que será entregue e o prazo combinado para aquele escopo.'},
+    {'title': 'Desenvolver', 'text': 'Construímos a solução em etapas, com pontos de validação para você acompanhar e ajustar antes da entrega final.'},
+    {'title': 'Evoluir', 'text': 'Depois da publicação, acompanhamos o funcionamento e podemos seguir com manutenção, melhorias e novas funcionalidades.'},
+]
+
+PAGES = [
+    # ------------------------------------------------------------------ CRIAÇÃO DE SITES
+    {
+        'slug': 'criacao-de-sites',
+        'title': 'Criação de Sites Profissionais para Empresas | CAVAX',
+        'description': 'Criação de sites profissionais e institucionais: responsivos, rápidos, seguros e preparados para o Google. Solicite um orçamento para sua empresa.',
+        'breadcrumb': 'Criação de sites',
+        'eyebrow': 'SITES PROFISSIONAIS',
+        'h1': 'Criação de sites profissionais para empresas',
+        'lead': 'Um site bem feito apresenta o seu negócio com clareza, transmite confiança e facilita o contato de quem ainda não conhece a sua empresa. A CAVAX desenvolve sites institucionais sob medida — do planejamento à publicação.',
+        'form_service': 'Desenvolvimento de site ou loja virtual',
+        'whatsapp_text': 'Olá, CAVAX! Quero um orçamento para criação de site.',
+        'schema': 'Service',
+        'service_name': 'Criação de sites profissionais',
+        'sections': [
+            {
+                'id': 'para-quem',
+                'label': 'PARA QUEM É',
+                'title': 'Para empresas que querem ser <em>encontradas e lembradas</em>',
+                'intro': ['Se hoje o cliente só encontra a sua empresa pelas redes sociais, por indicação ou por um site antigo que não funciona bem no celular, um site profissional resolve essa lacuna.'],
+                'cards': [
+                    {'title': 'Ainda não tem site', 'text': 'Ter um endereço próprio na internet, com informações oficiais, serviços e formas de contato em um só lugar.'},
+                    {'title': 'Site desatualizado', 'text': 'Refazer um site lento, difícil de usar no celular ou que já não representa a empresa, sem perder o que funciona.'},
+                    {'title': 'Depende só das redes', 'text': 'Ter um canal que é da sua empresa, que pode aparecer nas buscas do Google e que não depende do alcance de uma rede social.'},
+                ],
+            },
+            {
+                'id': 'o-que-entregamos',
+                'label': 'O QUE ESTÁ INCLUÍDO',
+                'title': 'Tudo o que um site profissional <em>precisa ter</em>',
+                'intro': ['O escopo final é definido com você, mas estes pontos fazem parte da forma como a CAVAX desenvolve sites:'],
+                'list': [
+                    '**Design alinhado à sua marca**, com textos e chamadas pensados para o seu público.',
+                    '**Layout responsivo**, que funciona bem em celulares, tablets e computadores.',
+                    '**Páginas essenciais** — como início, sobre, serviços e contato — conforme o escopo combinado.',
+                    '**Formulário de contato e botão de WhatsApp** para facilitar pedidos de orçamento.',
+                    '**SEO técnico de base**: títulos e descrições, URLs claras, sitemap, dados estruturados e HTML semântico.',
+                    '**Desempenho**: imagens otimizadas e código enxuto para carregar rápido.',
+                    '**Segurança**: HTTPS, cabeçalhos de segurança e validação dos formulários.',
+                    '**Privacidade (LGPD)**: política de privacidade e controle de cookies quando o site usa medição de audiência.',
+                    '**Publicação**: configuração de domínio, certificado SSL e hospedagem.',
+                    '**Área para editar conteúdo**, quando o projeto exigir atualizações frequentes.',
+                ],
+                'note': 'Lojas virtuais, áreas de cliente e integrações com sistemas também são possíveis e entram no escopo quando fazem sentido para o projeto.',
+            },
+            {
+                'id': 'tipos',
+                'label': 'TIPOS DE SITE',
+                'title': 'O formato certo para <em>cada objetivo</em>',
+                'cards': [
+                    {'tag': 'INSTITUCIONAL', 'title': 'Site institucional', 'text': 'Apresenta a empresa, os serviços e os diferenciais, com caminhos claros para o visitante entrar em contato.'},
+                    {'tag': 'CONVERSÃO', 'title': 'Página de vendas (landing page)', 'text': 'Uma página focada em uma única oferta ou campanha, ideal para anúncios e lançamentos.'},
+                    {'tag': 'SOB MEDIDA', 'title': 'Site com recursos próprios', 'text': 'Áreas restritas, cadastros, agendamentos ou integrações — quando o site também precisa ser uma ferramenta. Veja [desenvolvimento de sistemas](/desenvolvimento-de-sistemas/).'},
+                ],
+            },
+            {
+                'id': 'como-funciona',
+                'label': 'COMO TRABALHAMOS',
+                'title': 'Do briefing ao <em>site no ar</em>',
+                'steps': METHOD,
+            },
+            {
+                'id': 'perguntas',
+                'label': 'PERGUNTAS FREQUENTES',
+                'title': 'Dúvidas comuns sobre <em>criação de sites</em>',
+                'faq': [
+                    ('Quanto custa criar um site profissional?', 'O valor depende da quantidade de páginas, do conteúdo, das funcionalidades e das integrações necessárias. Por isso, trabalhamos com orçamento personalizado: você conta o que precisa e recebe uma proposta com escopo e prazo definidos.'),
+                    ('Quanto tempo leva para o site ficar pronto?', 'Depende do tamanho do projeto e da agilidade na troca de conteúdo e aprovações. O prazo é combinado na proposta, de acordo com o escopo.'),
+                    ('O site vai aparecer no Google?', 'Entregamos o site com a base técnica de SEO bem feita e orientamos o envio ao Google Search Console. A posição nas buscas depende de concorrência, conteúdo e tempo, então nenhuma empresa séria pode garantir primeiro lugar — e nós também não garantimos.'),
+                    ('Vou conseguir atualizar o site sozinho?', 'Se você precisa atualizar textos, imagens ou publicações com frequência, incluímos uma área administrativa no projeto. Se as mudanças forem raras, a manutenção pode ser feita pela nossa equipe.'),
+                    ('Vocês cuidam de domínio, hospedagem e manutenção?', 'Sim. Ajudamos com domínio, certificado SSL, publicação e, se você quiser, manutenção contínua, conforme as condições combinadas.'),
+                    ('Já tenho um site. Vocês podem refazer?', 'Sim. Avaliamos o site atual, aproveitamos o que funciona e planejamos a migração para não perder endereços já indexados pelo Google.'),
+                ],
+            },
+        ],
+        'cta_title': 'Vamos tirar o seu site <em>do papel?</em>',
+        'cta_text': 'Conte um pouco sobre a sua empresa e o que espera do site. Respondemos com os próximos passos e uma proposta personalizada.',
+        'related': ['desenvolvimento-de-sistemas', 'automacao-whatsapp', 'cavax-atendimento'],
+    },
+    # ------------------------------------------------------------------ AUTOMAÇÃO WHATSAPP
+    {
+        'slug': 'automacao-whatsapp',
+        'title': 'Automação de Atendimento no WhatsApp | CAVAX',
+        'description': 'Automação de atendimento no WhatsApp para empresas: respostas automáticas, triagem, atendimento humano e integração com sistemas pela API oficial da Meta.',
+        'breadcrumb': 'Automação de WhatsApp',
+        'eyebrow': 'AUTOMAÇÃO DE ATENDIMENTO',
+        'h1': 'Automação de atendimento no WhatsApp para empresas',
+        'lead': 'Responda mais rápido, organize as conversas e deixe a sua equipe livre para o que precisa de atenção humana. A CAVAX desenvolve automações de WhatsApp sob medida, integradas aos processos e sistemas da sua empresa.',
+        'form_service': 'Automação e inteligência artificial',
+        'whatsapp_text': 'Olá, CAVAX! Quero um orçamento para automação de atendimento no WhatsApp.',
+        'schema': 'Service',
+        'service_name': 'Automação de atendimento no WhatsApp',
+        'sections': [
+            {
+                'id': 'o-que-automatizar',
+                'label': 'O QUE DÁ PARA AUTOMATIZAR',
+                'title': 'Menos tarefas repetitivas, <em>atendimento mais organizado</em>',
+                'intro': ['Cada automação é desenhada para o seu fluxo de atendimento. Alguns exemplos do que pode ser feito:'],
+                'cards': [
+                    {'title': 'Respostas imediatas', 'text': 'Boas-vindas, horário de funcionamento, endereço, formas de pagamento e respostas para as perguntas mais comuns.'},
+                    {'title': 'Menus e triagem', 'text': 'Direcionar cada cliente para o assunto certo — vendas, suporte, financeiro — antes de chegar ao atendente.'},
+                    {'title': 'Passagem para humano', 'text': 'Quando o assunto exige uma pessoa, a conversa é encaminhada para a equipe, sem o cliente precisar repetir tudo.'},
+                    {'title': 'Avisos e confirmações', 'text': 'Confirmação de pedidos, agendamentos e mudanças de status, com mensagens disparadas a partir do seu sistema.'},
+                    {'title': 'Integração com sistemas', 'text': 'Consulta de pedidos, cadastro de contatos e registro de atendimentos em um sistema, loja virtual ou CRM, por meio de APIs.'},
+                    {'title': 'Inteligência artificial', 'text': 'Quando faz sentido, a IA ajuda a entender perguntas abertas — sempre com limites definidos e opção de falar com uma pessoa.'},
+                ],
+            },
+            {
+                'id': 'api-oficial',
+                'label': 'API OFICIAL',
+                'title': 'Feito sobre a <em>plataforma oficial</em> do WhatsApp',
+                'intro': [
+                    'Recomendamos e trabalhamos com a **WhatsApp Business Platform (Cloud API)**, a forma oficial da Meta para empresas automatizarem conversas. Ela exige alguns cuidados que explicamos desde o início:',
+                ],
+                'list': [
+                    '**Número dedicado** para a automação, vinculado a uma conta empresarial da Meta.',
+                    '**Mensagens iniciadas pela empresa** precisam usar modelos (templates) aprovados pela Meta.',
+                    '**Janela de atendimento**: depois que o cliente envia uma mensagem, a empresa pode responder livremente por 24 horas.',
+                    '**Custos da Meta**: a Meta cobra por mensagem, conforme a categoria e a tabela vigente. As regras mudam com frequência, então estimamos esse custo na proposta.',
+                    '**Consentimento e LGPD**: só enviamos mensagens para quem autorizou e tratamos os dados de forma segura.',
+                ],
+                'note': 'Soluções não oficiais, que simulam o WhatsApp Web, existem e podem parecer mais simples, mas correm o risco de bloqueio do número e de instabilidade. Se esse for o seu cenário, explicamos as diferenças com transparência antes de qualquer decisão.',
+            },
+            {
+                'id': 'como-funciona',
+                'label': 'COMO TRABALHAMOS',
+                'title': 'Do mapa de conversas à <em>automação no ar</em>',
+                'intro': ['Antes de programar qualquer coisa, desenhamos o fluxo: quais perguntas chegam, quem responde o quê e em que momento a conversa precisa de uma pessoa.'],
+                'steps': METHOD,
+            },
+            {
+                'id': 'produto-ou-projeto',
+                'label': 'PROJETO OU PLATAFORMA?',
+                'title': 'Automação sob medida <em>ou plataforma pronta</em>',
+                'intro': [
+                    'Esta página trata de **projetos sob medida**: automações desenvolvidas para o processo específico da sua empresa, integradas aos seus sistemas.',
+                    'Também estamos desenvolvendo o [CAVAX Atendimento](/cavax-atendimento/), uma plataforma própria com central de conversas e editor visual de fluxos. Ela ainda está em desenvolvimento — se você quer acompanhar, conheça a página do produto.',
+                ],
+            },
+            {
+                'id': 'perguntas',
+                'label': 'PERGUNTAS FREQUENTES',
+                'title': 'Dúvidas comuns sobre <em>automação de WhatsApp</em>',
+                'faq': [
+                    ('Preciso usar a API oficial do WhatsApp?', 'Para automação profissional, recomendamos a API oficial da Meta: ela é a forma permitida para empresas e reduz o risco de bloqueio do número. Avaliamos o seu caso e explicamos os requisitos antes de começar.'),
+                    ('Posso continuar usando o mesmo número?', 'Depende de como o número é usado hoje. Um número vinculado à API oficial passa a funcionar pela plataforma da Meta, e não mais pelo aplicativo comum. Analisamos isso na fase de planejamento.'),
+                    ('O cliente consegue falar com uma pessoa?', 'Sim. Toda automação que desenvolvemos prevê a passagem para atendimento humano quando o assunto exige.'),
+                    ('A automação usa inteligência artificial?', 'Pode usar, quando isso realmente ajuda. Muitos atendimentos funcionam melhor com fluxos e respostas definidas; a IA entra para entender perguntas abertas, sempre com regras e limites.'),
+                    ('Quanto custa uma automação de WhatsApp?', 'Depende da complexidade dos fluxos, das integrações e do volume de mensagens — que também tem custo cobrado pela Meta. Enviamos uma proposta personalizada com tudo isso explicado.'),
+                    ('Funciona com o sistema que eu já uso?', 'Se o sistema oferece API ou outra forma segura de integração, normalmente sim. Avaliamos a documentação do seu sistema antes de fechar o escopo.'),
+                ],
+            },
+        ],
+        'cta_title': 'Quer organizar o seu atendimento <em>no WhatsApp?</em>',
+        'cta_text': 'Conte como funciona o seu atendimento hoje: volume de mensagens, perguntas mais comuns e sistemas que você usa. Respondemos com uma proposta.',
+        'related': ['cavax-atendimento', 'desenvolvimento-de-sistemas', 'criacao-de-sites'],
+    },
+    # ------------------------------------------------------------------ SISTEMAS
+    {
+        'slug': 'desenvolvimento-de-sistemas',
+        'title': 'Desenvolvimento de Sistemas e Software sob Medida | CAVAX',
+        'description': 'Desenvolvimento de sistemas web e software sob medida para empresas: painéis administrativos, gestão, áreas de cliente e integrações. Peça um orçamento.',
+        'breadcrumb': 'Desenvolvimento de sistemas',
+        'eyebrow': 'SOFTWARE SOB MEDIDA',
+        'h1': 'Desenvolvimento de sistemas e software sob medida',
+        'lead': 'Quando planilhas, mensagens soltas e sistemas que não conversam entre si começam a travar a operação, um sistema feito para o seu processo faz diferença. A CAVAX desenvolve sistemas web sob medida para empresas.',
+        'form_service': 'Sistema ou software sob medida',
+        'whatsapp_text': 'Olá, CAVAX! Quero um orçamento para desenvolvimento de sistema.',
+        'schema': 'Service',
+        'service_name': 'Desenvolvimento de sistemas e software sob medida',
+        'sections': [
+            {
+                'id': 'sinais',
+                'label': 'QUANDO FAZ SENTIDO',
+                'title': 'Sinais de que a sua empresa <em>precisa de um sistema</em>',
+                'list': [
+                    'Informações importantes espalhadas em **planilhas, cadernos e conversas**.',
+                    '**Retrabalho**: os mesmos dados são digitados em mais de um lugar.',
+                    'Dificuldade para saber **o status de pedidos, serviços ou estoque** em tempo real.',
+                    'Ferramentas prontas que **não se adaptam** ao jeito que a sua empresa trabalha.',
+                    'Sistemas que **não se integram** e exigem trabalho manual para passar dados de um para outro.',
+                    'Processos que dependem de **uma única pessoa** saber como tudo funciona.',
+                ],
+            },
+            {
+                'id': 'o-que-desenvolvemos',
+                'label': 'O QUE DESENVOLVEMOS',
+                'title': 'Soluções pensadas para <em>a sua operação</em>',
+                'cards': [
+                    {'title': 'Sistemas de gestão', 'text': 'Controle de pedidos, ordens de serviço, estoque, clientes e financeiro, com as regras do seu negócio.'},
+                    {'title': 'Painéis administrativos', 'text': 'Visão centralizada dos dados mais importantes, com relatórios e permissões por tipo de usuário.'},
+                    {'title': 'Áreas de cliente e portais', 'text': 'Espaço para o seu cliente acompanhar pedidos, abrir solicitações e acessar documentos com login seguro.'},
+                    {'title': 'Integrações e APIs', 'text': 'Conexão com meios de pagamento, WhatsApp, e-mail e outros sistemas que você já usa.'},
+                    {'title': 'Automação de rotinas', 'text': 'Tarefas repetitivas executadas pelo sistema: avisos, atualizações de status, cálculos e relatórios.'},
+                    {'title': 'Evolução de sistemas', 'text': 'Melhorias, correções e novas funcionalidades em sistemas já existentes, após uma avaliação técnica.'},
+                ],
+                'note': 'Também desenvolvemos produtos próprios, como o **VATEC OS**, uma plataforma de gestão em evolução. Essa experiência com produto real ajuda a planejar sistemas que crescem com o negócio.',
+            },
+            {
+                'id': 'qualidade',
+                'label': 'TECNOLOGIA E SEGURANÇA',
+                'title': 'Construído para ser <em>seguro e sustentável</em>',
+                'intro': ['Usamos tecnologias consolidadas no mercado — como Node.js, Java, Spring Boot, bancos de dados relacionais e APIs REST — escolhidas de acordo com o projeto.'],
+                'list': [
+                    '**Controle de acesso** por usuário e perfil, com senhas armazenadas com hash seguro.',
+                    '**Validação de dados** e proteção contra ataques comuns em aplicações web.',
+                    '**Registros de atividade** para saber quem fez cada alteração importante.',
+                    '**Backups** e plano de recuperação de dados.',
+                    '**Funciona no navegador**, inclusive no celular, sem instalar nada.',
+                    '**Documentação** e entregas em etapas, para você validar o que está sendo construído.',
+                ],
+                'note': 'As medidas de segurança são definidas de acordo com a tecnologia, a hospedagem e o nível de risco de cada projeto. Nenhuma solução garante risco zero.',
+            },
+            {
+                'id': 'como-funciona',
+                'label': 'COMO TRABALHAMOS',
+                'title': 'Do levantamento à <em>entrega em etapas</em>',
+                'intro': ['Sistemas sob medida funcionam melhor quando começam pelo essencial. Muitas vezes, recomendamos uma primeira versão menor, que já resolve o principal problema, e evoluímos a partir do uso real.'],
+                'steps': METHOD,
+            },
+            {
+                'id': 'perguntas',
+                'label': 'PERGUNTAS FREQUENTES',
+                'title': 'Dúvidas comuns sobre <em>sistemas sob medida</em>',
+                'faq': [
+                    ('Sistema sob medida ou sistema pronto: qual escolher?', 'Se um sistema pronto atende bem ao seu processo, ele costuma ser mais rápido de implantar. O sob medida vale a pena quando o seu processo é específico, quando você precisa integrar ferramentas ou quando os sistemas prontos exigem muitos "jeitinhos". Ajudamos a avaliar com honestidade.'),
+                    ('Quanto custa desenvolver um sistema?', 'Depende das funcionalidades, das integrações e do número de perfis de usuário. Fazemos um levantamento inicial e enviamos uma proposta com escopo, etapas e prazo.'),
+                    ('Dá para começar com uma versão menor?', 'Sim, e geralmente recomendamos. Uma primeira versão focada no essencial entra em uso mais cedo e orienta as próximas etapas.'),
+                    ('O sistema funciona no celular?', 'Sim. Desenvolvemos sistemas web responsivos, que funcionam no navegador do computador e do celular.'),
+                    ('Vocês integram com sistemas que já uso?', 'Quando o sistema oferece API ou outra forma segura de integração, sim. Avaliamos isso no levantamento.'),
+                    ('Quem cuida da hospedagem e da manutenção?', 'Podemos cuidar da publicação, da hospedagem e da manutenção contínua, conforme as condições combinadas na proposta.'),
+                ],
+            },
+        ],
+        'cta_title': 'Vamos desenhar o sistema <em>da sua empresa?</em>',
+        'cta_text': 'Explique o processo que você quer organizar e quais ferramentas usa hoje. Respondemos com perguntas certeiras e uma proposta.',
+        'related': ['automacao-whatsapp', 'criacao-de-sites', 'cavax-atendimento'],
+    },
+    # ------------------------------------------------------------------ CAVAX ATENDIMENTO (PRODUTO)
+    {
+        'slug': 'cavax-atendimento',
+        'title': 'CAVAX Atendimento: plataforma de atendimento no WhatsApp',
+        'description': 'CAVAX Atendimento é a plataforma da CAVAX para atendimento no WhatsApp, com central de conversas e editor visual de fluxos. Em desenvolvimento.',
+        'breadcrumb': 'CAVAX Atendimento',
+        'eyebrow': 'PRODUTO CAVAX',
+        'h1': 'CAVAX Atendimento: atendimento e automação no WhatsApp',
+        'lead': 'O CAVAX Atendimento é a plataforma que estamos desenvolvendo para reunir as conversas de WhatsApp da sua empresa em um só lugar e automatizar o atendimento com um editor visual de fluxos, usando a API oficial da Meta.',
+        'status': 'Em desenvolvimento — ainda não disponível para contratação',
+        'form_service': 'Automação e inteligência artificial',
+        'cta_label': 'Quero ser avisado',
+        'whatsapp_text': 'Olá, CAVAX! Quero saber mais sobre o CAVAX Atendimento.',
+        'schema': 'WebPage',
+        'sections': [
+            {
+                'id': 'proposta',
+                'label': 'A PROPOSTA',
+                'title': 'Um lugar para <em>todas as conversas</em>',
+                'intro': [
+                    'Equipes que atendem pelo WhatsApp costumam dividir um único celular, perder o histórico das conversas e responder as mesmas perguntas várias vezes ao dia. O CAVAX Atendimento está sendo construído para resolver isso.',
+                ],
+                'cards': [
+                    {'tag': 'EM DESENVOLVIMENTO', 'title': 'Central de conversas', 'text': 'As conversas do WhatsApp da empresa reunidas em um painel, para a equipe acompanhar e responder.'},
+                    {'tag': 'EM DESENVOLVIMENTO', 'title': 'Contatos', 'text': 'Cadastro dos contatos que conversam com a empresa, para dar contexto a cada atendimento.'},
+                    {'tag': 'EM DESENVOLVIMENTO', 'title': 'Editor visual de fluxos', 'text': 'Montar respostas automáticas e menus arrastando blocos, sem precisar programar.'},
+                ],
+            },
+            {
+                'id': 'situacao',
+                'label': 'SITUAÇÃO ATUAL',
+                'title': 'O que já está definido <em>e o que ainda não</em>',
+                'intro': ['Preferimos ser transparentes: o produto ainda não foi lançado, e as informações abaixo podem mudar até a versão final.'],
+                'roadmap': [
+                    {'title': 'Em desenvolvimento', 'items': ['Central de conversas', 'Cadastro de contatos', 'Editor visual de fluxos de atendimento', 'Integração com a API oficial do WhatsApp (WhatsApp Cloud API, da Meta)']},
+                    {'title': 'Ainda não definido', 'items': ['Data de lançamento', 'Planos e preços', 'Integrações adicionais além do WhatsApp', 'Recursos de inteligência artificial']},
+                ],
+                'note': 'Nenhum recurso desta página está disponível para contratação neste momento. Se você precisa automatizar o atendimento agora, conheça a [automação de WhatsApp sob medida](/automacao-whatsapp/).',
+            },
+            {
+                'id': 'api-oficial',
+                'label': 'POR QUE A API OFICIAL',
+                'title': 'Base sólida, <em>dentro das regras do WhatsApp</em>',
+                'intro': [
+                    'O CAVAX Atendimento está sendo desenvolvido sobre a **WhatsApp Business Platform (Cloud API)**, a forma oficial da Meta para empresas. Isso significa seguir as regras da plataforma — como os modelos de mensagem aprovados e a janela de 24 horas para respostas — e os custos por mensagem cobrados pela própria Meta.',
+                ],
+            },
+            {
+                'id': 'perguntas',
+                'label': 'PERGUNTAS FREQUENTES',
+                'title': 'Dúvidas sobre o <em>CAVAX Atendimento</em>',
+                'faq': [
+                    ('O CAVAX Atendimento já pode ser contratado?', 'Ainda não. A plataforma está em desenvolvimento. Você pode deixar seu contato para ser avisado ou conversar sobre o seu cenário de atendimento.'),
+                    ('Quando será lançado?', 'Ainda não há data definida. Vamos divulgar aqui quando houver novidades.'),
+                    ('Quanto vai custar?', 'Planos e preços ainda não foram definidos. Além da plataforma, a Meta cobra pelas mensagens conforme a tabela dela.'),
+                    ('Qual a diferença para a automação sob medida?', 'A [automação sob medida](/automacao-whatsapp/) é um projeto feito para o processo específico da sua empresa, disponível hoje. O CAVAX Atendimento será uma plataforma pronta, para várias empresas usarem.'),
+                ],
+            },
+        ],
+        'cta_title': 'Quer acompanhar o <em>CAVAX Atendimento?</em>',
+        'cta_text': 'Deixe seu contato e conte como é o atendimento da sua empresa hoje. Avisaremos sobre as novidades — e, se precisar de algo agora, indicamos o melhor caminho.',
+        'related': ['automacao-whatsapp', 'desenvolvimento-de-sistemas', 'criacao-de-sites'],
+    },
+]

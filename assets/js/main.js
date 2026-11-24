@@ -122,6 +122,13 @@ document.addEventListener('click', (event) => {
 // ---------- Formulário de contato (registrado na API) ----------
 const form = document.getElementById('contactForm');
 if (form) {
+  // Vindo de uma página de serviço (/?servico=...#contato): já deixa o serviço selecionado.
+  // Só aceita um valor que exista exatamente na lista de opções do formulário.
+  const preset = new URLSearchParams(location.search).get('servico');
+  if (preset && form.service) {
+    const option = Array.from(form.service.options).find((o) => !o.disabled && o.value === preset);
+    if (option) form.service.value = option.value;
+  }
   let channel = 'site';
   form.querySelectorAll('[data-channel]').forEach((btn) => btn.addEventListener('click', () => {
     channel = btn.dataset.channel;

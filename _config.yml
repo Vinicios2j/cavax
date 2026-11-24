@@ -1,0 +1,6 @@
+# GitHub Pages (Jekyll): o site é HTML estático pronto. Estas pastas são internas e não devem ser publicadas.
+# (Pastas que começam com ponto, como .claude/, já são ignoradas pelo Jekyll.)
+exclude:
+  - docs/
+  - scripts/
+  - reports/
