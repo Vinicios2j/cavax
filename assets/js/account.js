@@ -743,6 +743,13 @@ async function showLogged(customer) {
 const authShell = document.querySelector('[data-auth-shell]');
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
+/** Data mais recente permitida (quem nasceu até hoje há 18 anos). */
+function adultLimit() {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 18);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+document.querySelectorAll('[data-adult-date]').forEach((input) => input.setAttribute('max', adultLimit()));
 const forgotForm = document.getElementById('forgotForm');
 const onlyDigits = (v) => String(v || '').replace(/\D/g, '');
 
@@ -963,6 +970,7 @@ handleAuth(
     document: onlyDigits(f.document.value),
     password: f.password.value,
     passwordConfirm: f.passwordConfirm.value,
+    birthDate: f.birthDate.value,
     acceptPrivacy: f.acceptPrivacy.checked,
     marketingConsent: f.marketingConsent.checked
   }),
@@ -972,6 +980,10 @@ handleAuth(
     if (name.length < 3) errs.push({ field: 'name', message: 'Informe seu nome completo.' });
     else if (name.split(/\s+/).length < 2) errs.push({ field: 'name', message: 'Informe nome e sobrenome.' });
     if (!/^\S+@\S+\.\S+$/.test(f.email.value.trim())) errs.push({ field: 'email', message: 'Informe um e-mail válido.' });
+    // Só maiores de 18 anos (o servidor confere de novo).
+    const birth = f.birthDate.value;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(birth)) errs.push({ field: 'birthDate', message: 'Informe sua data de nascimento.' });
+    else if (birth > adultLimit()) errs.push({ field: 'birthDate', message: 'É preciso ter 18 anos ou mais para criar uma conta.' });
     const phone = onlyDigits(f.phone.value);
     if (!phone) errs.push({ field: 'phone', message: 'Informe o telefone/WhatsApp.' });
     else if (phone.length < 10 || phone.length > 11) errs.push({ field: 'phone', message: 'Telefone inválido (inclua o DDD).' });

@@ -54,6 +54,9 @@ export async function api(path, { method = 'GET', body } = {}) {
   const headers = { Accept: 'application/json' };
   if (body !== undefined) headers['Content-Type'] = 'application/json';
   if (csrfToken && method !== 'GET') headers['X-CSRF-Token'] = csrfToken;
+  // Analytics consentido: vincula o pedido/conta à sessão pseudônima (só existe se o visitante aceitou).
+  const aid = method !== 'GET' && typeof window !== 'undefined' && window.__cavaxAid ? window.__cavaxAid() : null;
+  if (aid && /^[A-Za-z0-9_-]{16,64}\.[A-Za-z0-9_-]{16,64}$/.test(aid)) headers['X-CAVAX-AID'] = aid;
   let response;
   try {
     response = await fetch(apiUrl(path), { method, headers, body: body === undefined ? undefined : JSON.stringify(body), credentials: IS_STATIC ? 'include' : 'same-origin', mode: IS_STATIC ? 'cors' : 'same-origin' });

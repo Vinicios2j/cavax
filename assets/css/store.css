@@ -464,3 +464,10 @@ button.text-link:disabled{color:#666;cursor:not-allowed;text-decoration:none}
 .email-verify[hidden]{display:none}
 .email-verify div{flex:1 1 320px;line-height:1.55}
 .email-verify strong{color:var(--gold)}
+
+/* Cupom no checkout (validado no servidor; não acumula com o desconto do PIX) */
+.coupon-form{margin:14px 0 4px;display:grid;gap:6px}
+.coupon-form label{font-weight:700;font-size:.86rem}
+.coupon-row{display:flex;gap:8px}
+.coupon-row input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:1px}
+.coupon-status{color:var(--muted,#a9a9a9);font-size:.8rem;min-height:1em}

@@ -1,3 +1,5 @@
+/* Fonte servida pelo próprio site (sem requisição ao Google). DM Sans — SIL Open Font License, ver assets/fonts/OFL.txt */
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:100 1000;font-display:swap;src:url('../fonts/dm-sans-latin.woff') format('woff')}
 /* =========================================================
    CAVAX — estilos principais do site institucional
    Identidade preservada do projeto original (preto, dourado e branco).
@@ -9,7 +11,7 @@
   --gold:#e8bd52;--gold2:#ffd978;--white:#f7f7f5;--muted:#a3a3a3;--soft:#d0d0cc;
   --danger:#ff8a7a;--success:#7fd8a4;
   --font:'DM Sans',system-ui,-apple-system,Segoe UI,sans-serif;
-  --display:'Manrope','DM Sans',system-ui,sans-serif;
+  --display:'DM Sans',system-ui,-apple-system,Segoe UI,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;scroll-padding-top:90px}

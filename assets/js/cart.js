@@ -1,5 +1,6 @@
-import { api, formatBRL, escapeHtml, assetUrl, productUrl } from './lib/api.js';
+import { api, formatBRL, escapeHtml, assetUrl, productUrl, toast } from './lib/api.js';
 import { cart } from './lib/cart.js';
+import { emit } from './lib/track.js';
 
 const linesEl = document.querySelector('[data-cart-lines]');
 const summaryEl = document.querySelector('[data-cart-summary]');
@@ -76,4 +77,42 @@ linesEl.addEventListener('change', (event) => {
   render();
 });
 
-render();
+// Link "Finalizar minha compra" do e-mail de lembrete (?recuperar=...). Exige login na mesma conta:
+// o token sai da barra de endereço imediatamente e fica só nesta aba até o login.
+const RECOVER_KEY = 'cavax_recover';
+const COUPON_KEY = 'cavax_coupon';
+async function recoverFromEmail() {
+  const q = new URLSearchParams(location.search);
+  const fromUrl = q.get('recuperar');
+  if (fromUrl) {
+    if (/^[A-Za-z0-9_-]{20,64}$/.test(fromUrl)) sessionStorage.setItem(RECOVER_KEY, fromUrl);
+    q.delete('recuperar');
+    history.replaceState(null, '', `${location.pathname}${q.toString() ? `?${q}` : ''}`);
+  }
+  const token = sessionStorage.getItem(RECOVER_KEY);
+  if (!token) return;
+  const { data: me } = await api('/customers/me').catch(() => ({ data: {} }));
+  if (!me?.customer) {
+    window.location.href = '/conta/?voltar=/loja/carrinho/&motivo=checkout';
+    return;
+  }
+  try {
+    const { data } = await api(`/customers/me/cart/recover?token=${encodeURIComponent(token)}`);
+    sessionStorage.removeItem(RECOVER_KEY);
+    const current = cart.items();
+    for (const item of data.items || []) if (!current.some((c) => c.productId === item.productId)) cart.add(item.productId, item.quantity);
+    if (data.coupon) {
+      sessionStorage.setItem(COUPON_KEY, data.coupon.code);
+      toast(`Cupom ${data.coupon.code} (${data.coupon.percent}%) será aplicado no checkout.`);
+    }
+  } catch (error) {
+    sessionStorage.removeItem(RECOVER_KEY);
+    toast(error.message);
+  }
+}
+
+recoverFromEmail()
+  .catch(() => {})
+  .finally(() => {
+    render().then(() => emit('cart_view', { items: Math.min(50, cart.items().length) }));
+  });

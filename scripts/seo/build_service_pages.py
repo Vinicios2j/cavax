@@ -20,7 +20,7 @@ from pages import PAGES, RELATED_LABELS  # noqa: E402
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 SITE = 'https://cavax.com.br'
 ORG_ID = f'{SITE}/#organizacao'
-WHATSAPP = '5511910428607'  # número oficial já publicado no site (não alterar sem aprovação)
+WHATSAPP = '5521999287921'  # número oficial já publicado no site (não alterar sem aprovação)
 CSS_SERVICES = '/assets/css/services.css'
 
 e = html.escape

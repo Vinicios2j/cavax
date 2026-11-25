@@ -1,5 +1,5 @@
-import { api, showFieldErrors, setStatus, toast } from './lib/api.js';
-import { cart, updateBadge } from './lib/cart.js';
+import { api, setCsrf, showFieldErrors, setStatus, toast } from './lib/api.js';
+import { cart, updateBadge, enableServerSync } from './lib/cart.js';
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -105,7 +105,15 @@ export function setAccountHeader(customer) {
 window.addEventListener('cavax:account', (e) => setAccountHeader(e.detail));
 if (document.querySelector('[data-account-link]')) {
   api('/customers/me')
-    .then(({ data }) => setAccountHeader(data.customer))
+    .then(({ data }) => {
+      setAccountHeader(data.customer);
+      if (!data.customer || !data.csrfToken) return;
+      // Cliente logado: guarda o carrinho na conta (operacional; o lembrete por e-mail depende do aceite de novidades).
+      setCsrf(data.csrfToken);
+      const save = (items) => api('/customers/me/cart', { method: 'PUT', body: { items } }).catch(() => {});
+      enableServerSync(save);
+      if (cart.items().length) save(cart.items());
+    })
     .catch(() => {});
 }
 document.addEventListener('cart:change', updateBadge);
@@ -122,6 +130,13 @@ document.addEventListener('click', (event) => {
 // ---------- Formulário de contato (registrado na API) ----------
 const form = document.getElementById('contactForm');
 if (form) {
+  // Vindo de uma página de serviço (/?servico=...#contato): já deixa o serviço selecionado.
+  // Só aceita um valor que exista exatamente na lista de opções do formulário.
+  const preset = new URLSearchParams(location.search).get('servico');
+  if (preset && form.service) {
+    const option = Array.from(form.service.options).find((o) => !o.disabled && o.value === preset);
+    if (option) form.service.value = option.value;
+  }
   let channel = 'site';
   form.querySelectorAll('[data-channel]').forEach((btn) => btn.addEventListener('click', () => {
     channel = btn.dataset.channel;
@@ -177,27 +192,32 @@ if (form) {
 }
 
 // ---------- Consentimento de cookies (LGPD) ----------
+// Duas finalidades separadas: essenciais (sempre ativos: sessão, carrinho, CSRF) e medição de audiência
+// (opcional: analytics first-party da CAVAX e, se configurado, Google Analytics). Nada opcional roda antes do "sim".
 const CONSENT_COOKIE = 'cavax_consent';
+const CONSENT_VERSION = 2; // muda quando a finalidade/descrição muda → pede de novo
 const analyticsId = document.body.dataset.analyticsId;
+let firstParty = { enabled: false, heatmap: true };
 
 function readConsent() {
   const match = document.cookie.match(/(?:^|;\s*)cavax_consent=([^;]+)/);
   if (!match) return null;
   try {
-    return JSON.parse(decodeURIComponent(match[1]));
+    const c = JSON.parse(decodeURIComponent(match[1]));
+    return c && c.v === CONSENT_VERSION ? c : null;
   } catch {
     return null;
   }
 }
 
 function saveConsent(consent) {
-  const value = encodeURIComponent(JSON.stringify({ ...consent, date: new Date().toISOString().slice(0, 10) }));
+  const value = encodeURIComponent(JSON.stringify({ v: CONSENT_VERSION, analytics: Boolean(consent.analytics), date: new Date().toISOString().slice(0, 10) }));
   const secure = location.protocol === 'https:' ? '; Secure' : '';
   document.cookie = `${CONSENT_COOKIE}=${value}; Max-Age=${60 * 60 * 24 * 365}; Path=/; SameSite=Lax${secure}`;
 }
 
 /** Google Analytics só é carregado após consentimento explícito. */
-function loadAnalytics() {
+function loadGoogleAnalytics() {
   if (!analyticsId || window.__cavaxAnalytics) return;
   window.__cavaxAnalytics = true;
   const script = document.createElement('script');
@@ -210,6 +230,29 @@ function loadAnalytics() {
   };
   window.gtag('js', new Date());
   window.gtag('config', analyticsId, { anonymize_ip: true });
+}
+
+function pageContext() {
+  const product = document.querySelector('[data-product-slug]')?.dataset.productSlug;
+  return product && /^[a-z0-9-]{1,90}$/.test(product) ? { product } : {};
+}
+
+async function loadAnalytics({ flush = false } = {}) {
+  loadGoogleAnalytics();
+  if (!firstParty.enabled) return;
+  const tracker = await import('./lib/analytics.js');
+  // flush: eventos desta página antes do carregamento só valem se o consentimento já existia.
+  tracker.start({ heatmap: firstParty.heatmap, page: pageContext(), flush });
+  document.dispatchEvent(new CustomEvent('analytics:ready', { detail: tracker }));
+}
+
+async function revokeAnalytics() {
+  try {
+    const tracker = await import('./lib/analytics.js');
+    tracker.revoke();
+  } catch {
+    /* ignore */
+  }
 }
 
 const banner = document.getElementById('cookieBanner');
@@ -232,15 +275,49 @@ banner?.addEventListener('click', (event) => {
   const action = event.target.closest('[data-cookie-action]')?.dataset.cookieAction;
   if (!action) return;
   if (action === 'customize') return openBanner(true);
+  const before = readConsent();
   const analytics = action === 'accept' ? true : action === 'reject' ? false : banner.querySelector('#cookieOptions').analytics.checked;
   saveConsent({ analytics });
   closeBanner();
   if (analytics) loadAnalytics();
-  else if (window.__cavaxAnalytics) location.reload();
+  else {
+    // Revogação: apaga identificadores e pede ao servidor para apagar os eventos deste navegador.
+    revokeAnalytics();
+    if (window.__cavaxAnalytics || before?.analytics) setTimeout(() => location.reload(), 300);
+  }
 });
 document.querySelectorAll('[data-cookie-preferences]').forEach((btn) => btn.addEventListener('click', () => openBanner(true)));
 
 const consent = readConsent();
-if (consent?.analytics) loadAnalytics();
-// O banner só aparece quando existe rastreamento opcional configurado.
-if (analyticsId && !consent) openBanner(false);
+if (consent?.analytics) loadGoogleAnalytics();
+// O banner só aparece quando existe medição opcional configurada (Google Analytics ou o analytics da CAVAX).
+api('/site/settings')
+  .then(({ data }) => {
+    firstParty = { enabled: Boolean(data.analytics?.enabled), heatmap: data.analytics?.heatmap !== false };
+  })
+  .catch(() => {})
+  .finally(() => {
+    const c = readConsent();
+    if (c?.analytics) loadAnalytics({ flush: true });
+    else if (!c && (analyticsId || firstParty.enabled)) openBanner(false);
+  });
+
+// ---------- Vídeo "clique para carregar" ----------
+// Nada é baixado do YouTube (nem o IP do visitante é enviado ao Google) até a pessoa clicar em assistir.
+document.querySelectorAll('[data-video-embed]').forEach((box) => {
+  const button = box.querySelector('button');
+  if (!button) return;
+  button.addEventListener('click', () => {
+    const id = box.dataset.videoEmbed;
+    if (!/^[A-Za-z0-9_-]{6,20}$/.test(id)) return;
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0`;
+    iframe.title = box.dataset.videoTitle || 'Vídeo';
+    iframe.width = '1920';
+    iframe.height = '1080';
+    iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+    iframe.allowFullscreen = true;
+    box.replaceChildren(iframe);
+  });
+});
