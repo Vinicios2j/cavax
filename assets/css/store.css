@@ -458,3 +458,9 @@ button.text-link:disabled{color:#666;cursor:not-allowed;text-decoration:none}
   .auth-shell[data-mode="register"] .auth-pane-login,.auth-shell:not([data-mode="register"]) .auth-pane-register{display:none}
   .auth-cols{grid-template-columns:1fr}
 }
+
+/* Aviso "confirme seu e-mail" no painel do cliente */
+.email-verify{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.email-verify[hidden]{display:none}
+.email-verify div{flex:1 1 320px;line-height:1.55}
+.email-verify strong{color:var(--gold)}

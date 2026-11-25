@@ -568,7 +568,7 @@ const profile = document.getElementById('profileForm');
 profile.addEventListener('submit', async (e) => {
   e.preventDefault();
   try {
-    const { data } = await api('/customers/me', { method: 'PUT', body: { name: profile.name.value.trim(), phone: onlyDigits(profile.phone.value) } });
+    const { data } = await api('/customers/me', { method: 'PUT', body: { name: profile.name.value.trim(), phone: onlyDigits(profile.phone.value), marketingConsent: profile.marketingConsent.checked } });
     me = data.customer;
     window.dispatchEvent(new CustomEvent('cavax:account', { detail: me }));
     fillProfileHeader(me);
@@ -675,8 +675,46 @@ function fillProfileHeader(customer) {
 document.querySelectorAll('a[href="/api/v1/customers/me/export"]').forEach((a) => (a.href = apiUrl('/customers/me/export')));
 
 // ---------------- Sessão ----------------
+// Aviso "confirme seu e-mail" (some depois da confirmação).
+const verifyBox = document.querySelector('[data-email-verify]');
+function updateEmailVerify(customer) {
+  if (!verifyBox) return;
+  verifyBox.hidden = !customer || customer.emailVerified !== false;
+  const target = verifyBox.querySelector('[data-verify-email]');
+  if (target && customer) target.textContent = customer.email;
+}
+verifyBox?.querySelector('[data-resend-confirm]')?.addEventListener('click', async (e) => {
+  const btn = e.currentTarget;
+  btn.disabled = true;
+  try {
+    const { data } = await api('/customers/me/email/confirm', { method: 'POST', body: {} });
+    if (data.alreadyVerified) {
+      me = { ...me, emailVerified: true };
+      updateEmailVerify(me);
+      toast('Seu e-mail já está confirmado.');
+      return;
+    }
+    toast('Enviamos um novo link de confirmação. Confira sua caixa de entrada e o spam.');
+    let left = data.resendInSeconds || 120;
+    btn.textContent = `Reenviar (${left}s)`;
+    const timer = setInterval(() => {
+      left -= 1;
+      if (left <= 0 || !me) {
+        clearInterval(timer);
+        btn.disabled = false;
+        btn.textContent = 'Reenviar e-mail';
+      } else btn.textContent = `Reenviar (${left}s)`;
+    }, 1000);
+    return;
+  } catch (error) {
+    toast(error.message);
+  }
+  btn.disabled = false;
+});
+
 async function showLogged(customer) {
   me = customer;
+  linkState = null;
   window.dispatchEvent(new CustomEvent('cavax:account', { detail: customer }));
   guest.hidden = true;
   logged.hidden = false;
@@ -687,6 +725,8 @@ async function showLogged(customer) {
   profile.phone.value = maskPhone(customer.phone || '');
   document.getElementById('p-document').value = customer.document ? maskCpf(customer.document).replace(/^(\d{3})\.\d{3}\.(\d{3})/, '$1.***.$2') : 'Não informado';
   document.getElementById('p-email').value = customer.email;
+  profile.marketingConsent.checked = Boolean(customer.marketingConsent);
+  updateEmailVerify(customer);
   loadPasswordChannels();
   if (!botLog.childElementCount) {
     addBubble(botLog, { author: 'bot', text: `Olá, ${customer.name.split(' ')[0]}! Sou o assistente virtual da CAVAX. Escolha um assunto abaixo ou digite sua dúvida.` });
@@ -825,6 +865,34 @@ document.addEventListener('click', (e) => {
 });
 setAuthMode(params.get('modo') === 'cadastro' ? 'register' : 'login', { focus: false });
 
+// Retorno dos links enviados por e-mail (?email=confirmado|invalido, ?seguranca=redefinir).
+let linkState = null;
+(function readEmailLinks() {
+  const email = params.get('email');
+  const seguranca = params.get('seguranca');
+  if (!email && !seguranca) return;
+  linkState = { email, seguranca };
+  if (email === 'confirmado') toast('E-mail confirmado com sucesso! Obrigado.');
+  else if (email === 'invalido') toast('Este link de confirmação já foi usado ou expirou. Entre na sua conta e peça um novo.');
+  params.delete('email');
+  params.delete('seguranca');
+  const qs = params.toString();
+  history.replaceState(null, '', location.pathname + (qs ? `?${qs}` : '') + location.hash);
+})();
+
+/** Aplicado quando a tela de login aparece (depois que os formulários são limpos). */
+function applyLinkState() {
+  if (!linkState) return;
+  const state = linkState;
+  linkState = null;
+  if (state.seguranca === 'redefinir') {
+    setAuthMode('forgot', { focus: false });
+    setStatus(forgotForm, 'Por segurança, crie uma nova senha para voltar a acessar sua conta.', 'error');
+  } else if (state.email === 'confirmado') {
+    setStatus(loginForm, 'E-mail confirmado! Entre com seu e-mail e senha.', 'success');
+  }
+}
+
 function handleAuth(form, path, build, check) {
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -847,6 +915,14 @@ function handleAuth(form, path, build, check) {
       }
       showLogged(data.customer);
     } catch (error) {
+      if (error.code === 'PASSWORD_RESET_REQUIRED') {
+        // Conta bloqueada pelo "Não fui eu": leva direto para criar uma nova senha.
+        const email = loginForm.email.value.trim();
+        setAuthMode('forgot');
+        forgotForm.email.value = email;
+        setStatus(forgotForm, error.message, 'error');
+        return;
+      }
       const shown = showFieldErrors(form, error.details);
       setStatus(form, shown ? 'Revise os campos destacados.' : error.message, 'error');
       if (form === loginForm) form.password.value = '';
@@ -1024,11 +1100,13 @@ function showGuest() {
   const pwCode = document.querySelector('#passwordForm [data-step="code"]');
   if (pwCode) pwCode.hidden = true;
   if (botLog) botLog.innerHTML = '';
+  updateEmailVerify(null);
   ['[data-customer-name]', '[data-customer-fullname]', '[data-customer-email]', '[data-customer-initials]', '[data-member-since]'].forEach((sel) => {
     const el = $(sel);
     if (el) el.textContent = '';
   });
   if (params.get('motivo') === 'checkout') $('[data-checkout-notice]').hidden = false;
+  applyLinkState();
 }
 
 document.querySelector('[data-logout]')?.addEventListener('click', async () => {

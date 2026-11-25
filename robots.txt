@@ -1,9 +1,8 @@
 User-agent: *
 Allow: /
-# Checkout e pedidos: URLs com dados de compra (código e token do pedido) não devem ser rastreadas.
+Disallow: /conta/
+Disallow: /loja/carrinho/
 Disallow: /loja/checkout/
 Disallow: /loja/pedido/
-# /conta/ e /loja/carrinho/ ficam liberadas para o Google ler o "noindex" dessas páginas.
-# Atenção: robots.txt não é controle de acesso — a proteção real é o login e a API.
 
 Sitemap: https://cavax.com.br/sitemap.xml
