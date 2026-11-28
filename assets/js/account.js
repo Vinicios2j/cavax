@@ -1,5 +1,8 @@
 import { api, setCsrf, formatBRL, escapeHtml, showFieldErrors, setStatus, toast, assetUrl, productUrl, orderUrl, apiUrl } from './lib/api.js';
 import { cart } from './lib/cart.js';
+import { legalVersions, preloadLegal } from './lib/legal.js';
+
+preloadLegal();
 
 const guest = document.querySelector('[data-guest]');
 const logged = document.querySelector('[data-logged]');
@@ -177,6 +180,7 @@ async function loadDashboard() {
   const sessions = data.security.activeSessions;
   $('[data-sessions-info]').textContent = sessions > 1 ? `Sua conta está conectada em ${sessions} aparelhos/navegadores.` : 'Sua conta está conectada só neste aparelho.';
   $('[data-logout-others]').hidden = sessions <= 1;
+  loadPrivacy();
   const ordersBadge = $('[data-orders-badge]');
   ordersBadge.textContent = s.pending;
   ordersBadge.hidden = !s.pending;
@@ -208,9 +212,6 @@ document.addEventListener('click', async (e) => {
     cart.add(Number(recoAdd.dataset.recoAdd), 1);
     toast('Produto adicionado ao carrinho.', { href: '/loja/carrinho/', label: 'Ver carrinho' });
   }
-  if (e.target.closest('[data-request-delete]')) {
-    await showNewTicket({ subject: 'Solicitação de exclusão da conta (LGPD)', message: 'Olá! Gostaria de solicitar a exclusão da minha conta e dos meus dados pessoais, conforme a LGPD.' });
-  }
   if (e.target.closest('[data-logout-others]')) {
     const status = $('[data-sessions-status]');
     try {
@@ -225,6 +226,67 @@ document.addEventListener('click', async (e) => {
     }
   }
 });
+
+// ---------------- LGPD: pedidos do titular e comprovantes de aceite ----------------
+const PRIVACY_STATUS = { aberto: 'Aberto', em_andamento: 'Em andamento', concluido: 'Concluído', recusado: 'Recusado' };
+const DOC_SOURCE = { cadastro: 'no cadastro', checkout: 'na compra' };
+
+async function loadPrivacy() {
+  const box = $('[data-privacy-requests]');
+  const acc = $('[data-legal-acceptances]');
+  if (!box || !acc) return;
+  try {
+    const [{ data: req }, { data: accepted }] = await Promise.all([api('/customers/me/privacy-requests'), api('/customers/me/legal-acceptances')]);
+    box.innerHTML = req.requests.length
+      ? `<ul class="lgpd-list">${req.requests
+          .map(
+            (r) => `<li><strong>${escapeHtml(r.typeLabel)}</strong> · protocolo ${escapeHtml(r.protocol)}<br><small>${escapeHtml(PRIVACY_STATUS[r.status] || r.status)} · aberto em ${formatDate(r.createdAt)}${r.status === 'aberto' || r.status === 'em_andamento' ? ` · resposta até ${formatDate(r.dueAt)}` : ''}</small>${r.response ? `<p>${escapeHtml(r.response)}</p>` : ''}</li>`
+          )
+          .join('')}</ul>`
+      : '';
+    acc.innerHTML = accepted.length
+      ? `<ul class="lgpd-list">${accepted
+          .map((a) => `<li>${escapeHtml(a.title)} — versão ${escapeHtml(a.version)}, aceita ${escapeHtml(DOC_SOURCE[a.source] || a.source)} em ${formatDate(a.acceptedAt)}<br><small class="mono">ref. ${escapeHtml(a.sha256.slice(0, 16))}…</small></li>`)
+          .join('')}</ul>`
+      : '<p class="muted-line">Sua conta foi criada antes do registro de aceites. Os documentos atuais estão no rodapé do site.</p>';
+  } catch {
+    acc.innerHTML = '<p class="muted-line">Não foi possível carregar agora.</p>';
+  }
+}
+
+const privacyForm = $('[data-privacy-form]');
+if (privacyForm) {
+  privacyForm.type.addEventListener('change', () => {
+    $('[data-privacy-exclusao]').hidden = privacyForm.type.value !== 'exclusao';
+  });
+  privacyForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    showFieldErrors(privacyForm, []);
+    if (!privacyForm.type.value) {
+      showFieldErrors(privacyForm, [{ field: 'type', message: 'Escolha o tipo de pedido.' }]);
+      return;
+    }
+    const button = privacyForm.querySelector('button[type="submit"]');
+    button.disabled = true;
+    setStatus(privacyForm, 'Enviando…');
+    try {
+      const { data } = await api('/customers/me/privacy-requests', { method: 'POST', body: { type: privacyForm.type.value, message: privacyForm.message.value.trim() || null } });
+      setStatus(
+        privacyForm,
+        data.duplicate ? `Você já tem um pedido desse tipo em andamento (protocolo ${data.request.protocol}).` : `Pedido registrado. Protocolo ${data.request.protocol}. Responderemos até ${formatDate(data.request.dueAt)}.`,
+        'success'
+      );
+      privacyForm.reset();
+      $('[data-privacy-exclusao]').hidden = true;
+      loadPrivacy();
+    } catch (error) {
+      if (!showFieldErrors(privacyForm, error.details)) setStatus(privacyForm, error.message, 'error');
+      else setStatus(privacyForm, '');
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
 
 // ---------------- Pedidos ----------------
 let allOrders = [];
@@ -972,6 +1034,7 @@ handleAuth(
     passwordConfirm: f.passwordConfirm.value,
     birthDate: f.birthDate.value,
     acceptPrivacy: f.acceptPrivacy.checked,
+    legalVersions: legalVersions(['terms_of_use', 'privacy']),
     marketingConsent: f.marketingConsent.checked
   }),
   (f) => {
@@ -990,7 +1053,7 @@ handleAuth(
     if (!onlyDigits(f.document.value)) errs.push({ field: 'document', message: 'Informe o CPF.' });
     else if (!isValidCpf(f.document.value)) errs.push({ field: 'document', message: 'CPF inválido.' });
     errs.push(...passwordIssues(f.password.value, f.passwordConfirm.value));
-    if (!f.acceptPrivacy.checked) errs.push({ field: 'acceptPrivacy', message: 'É necessário aceitar a Política de Privacidade.' });
+    if (!f.acceptPrivacy.checked) errs.push({ field: 'acceptPrivacy', message: 'É necessário aceitar os Termos de Uso e a Política de Privacidade.' });
     return errs;
   }
 );

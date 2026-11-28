@@ -1,6 +1,9 @@
 import { api, setCsrf, formatBRL, escapeHtml, showFieldErrors, setStatus, orderUrl, IS_STATIC } from './lib/api.js';
 import { cart } from './lib/cart.js';
 import { emit } from './lib/track.js';
+import { legalVersions, preloadLegal } from './lib/legal.js';
+
+preloadLegal();
 
 const form = document.getElementById('checkoutForm');
 const itemsEl = document.querySelector('[data-checkout-items]');
@@ -177,7 +180,8 @@ form.addEventListener('submit', async (event) => {
     paymentMethod: f.paymentMethod || '',
     notes: f.notes || null,
     couponCode: coupon ? coupon.code : null,
-    acceptTerms: form.acceptTerms.checked
+    acceptTerms: form.acceptTerms.checked,
+    legalVersions: legalVersions(['terms_of_purchase', 'returns', 'privacy'])
   };
   submit.disabled = true;
   setStatus(form, 'Registrando seu pedido…');

@@ -166,14 +166,9 @@ if (form) {
       showFieldErrors(form, []);
       setStatus(form, 'Mensagem enviada! Nossa equipe retornará assim que possível.', 'success');
       if (popup) {
-        const text = [
-          'Olá, CAVAX! Gostaria de conversar sobre um projeto.',
-          '',
-          `Nome: ${payload.name}`,
-          `E-mail: ${payload.email}`,
-          `Serviço: ${payload.service}`,
-          `Mensagem: ${payload.message || 'Não informado'}`
-        ].join('\n');
+        // Sem nome, e-mail ou mensagem na URL: os dados já chegaram ao painel pelo formulário.
+        const label = form.querySelector(`select[name="service"] option[value="${CSS.escape(payload.service || '')}"]`)?.textContent?.trim();
+        const text = `Olá, CAVAX! Acabei de enviar o formulário do site${label ? ` sobre: ${label}` : ''}. Podemos conversar?`;
         popup.opener = null;
         popup.location.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
       }

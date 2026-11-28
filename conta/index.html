@@ -27,8 +27,8 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/favicon-192.png">
   <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="/assets/css/main.css?v=b3758818e7">
-  <link rel="stylesheet" href="/assets/css/store.css?v=7ce6ca81f9">
+  <link rel="stylesheet" href="/assets/css/main.css?v=5dda0251de">
+  <link rel="stylesheet" href="/assets/css/store.css?v=71d143f871">
   
 </head>
 <body class="page-account">
@@ -290,7 +290,30 @@
             </form>
               <div class="cdash-sec-side">
                 <section class="cdash-card"><h3>Aparelhos conectados</h3><p class="muted-line" data-sessions-info>—</p><button type="button" class="btn btn-outline btn-small" data-logout-others>Sair dos outros aparelhos</button><p class="form-status" role="status" aria-live="polite" data-sessions-status></p></section>
-                <section class="cdash-card"><h3>Seus dados (LGPD)</h3><p class="muted-line">Baixe uma cópia do seu cadastro, pedidos e atendimentos, ou peça a exclusão da conta.</p><div class="cdash-inline"><a class="btn btn-outline btn-small" href="/api/v1/customers/me/export" download>Baixar meus dados</a><button type="button" class="text-link" data-request-delete>Pedir exclusão da conta</button></div></section>
+                <section class="cdash-card" aria-labelledby="lgpd-title">
+                  <h3 id="lgpd-title">Seus dados (LGPD)</h3>
+                  <p class="muted-line">Baixe uma cópia do seu cadastro, pedidos, atendimentos e aceites.</p>
+                  <div class="cdash-inline"><a class="btn btn-outline btn-small" href="/api/v1/customers/me/export" download>Baixar meus dados</a></div>
+                  <form class="lgpd-form" data-privacy-form novalidate>
+                    <div class="field"><label for="lgpd-type">Fazer um pedido sobre seus dados</label>
+                      <select id="lgpd-type" name="type" required>
+                        <option value="">Escolha…</option>
+                        <option value="acesso">Acesso aos meus dados</option>
+                        <option value="correcao">Correção de dados</option>
+                        <option value="exclusao">Exclusão da conta e dos dados</option>
+                        <option value="revogacao">Revogação de consentimento</option>
+                        <option value="oposicao">Oposição a um tratamento</option>
+                        <option value="portabilidade">Portabilidade</option>
+                        <option value="informacao">Com quem meus dados são compartilhados</option>
+                      </select><p class="field-error" data-error-for="type"></p></div>
+                    <div class="field"><label for="lgpd-message">Detalhes (opcional)</label><textarea id="lgpd-message" name="message" rows="3" maxlength="1000"></textarea><p class="field-error" data-error-for="message"></p></div>
+                    <p class="hint" data-privacy-exclusao hidden>Na exclusão, seu cadastro é anonimizado. Pedidos e notas fiscais continuam guardados pelo prazo que a lei exige.</p>
+                    <button class="btn btn-primary btn-small" type="submit">Enviar pedido</button>
+                    <p class="form-status" role="status" aria-live="polite"></p>
+                  </form>
+                  <div data-privacy-requests></div>
+                  <details class="lgpd-acceptances"><summary>Termos que você aceitou</summary><div data-legal-acceptances><p class="muted-line">Carregando…</p></div></details>
+                </section>
               </div>
             </div>
           </div>
@@ -313,7 +336,7 @@
           </a>
           <p>Tecnologia, estratégia e desenvolvimento para transformar desafios em soluções digitais.</p>
           <div class="footer-social">
-            <a href="https://wa.me/5521999287921" target="_blank" rel="noopener" aria-label="WhatsApp da CAVAX">WA</a>
+            <a href="https://wa.me/5521999287921" target="_blank" rel="noopener"><span aria-hidden="true">WA</span><span class="sr-only">WhatsApp da CAVAX</span></a>
             <a href="mailto:jose.vinicius.batista292@gmail.com" aria-label="E-mail da CAVAX">✉</a>
             
           </div>
@@ -365,14 +388,14 @@
       </form>
       <div class="cookie-actions">
         <button type="button" class="btn btn-outline" data-cookie-action="customize">Personalizar</button>
-        <button type="button" class="btn btn-outline" data-cookie-action="reject">Recusar opcionais</button>
+        <button type="button" class="btn btn-primary" data-cookie-action="reject">Recusar opcionais</button>
         <button type="button" class="btn btn-primary" data-cookie-action="accept">Aceitar todos</button>
         <button type="button" class="btn btn-primary" data-cookie-action="save" hidden>Salvar preferências</button>
       </div>
     </div>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-  <script type="module" src="/assets/js/main.js?v=b155a54b32"></script>
-  <script type="module" src="/assets/js/account.js?v=c7fb8189b6"></script>
+  <script type="module" src="/assets/js/main.js?v=2c2961a6bb"></script>
+  <script type="module" src="/assets/js/account.js?v=842a76938c"></script>
 </body>
 </html>

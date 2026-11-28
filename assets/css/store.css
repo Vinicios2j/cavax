@@ -5,6 +5,7 @@
 .page-hero .wrap{position:relative;z-index:2}
 .page-hero h1{font:800 clamp(2.4rem,5vw,4.2rem)/1.08 var(--display);letter-spacing:-.055em;margin-top:22px;max-width:900px}
 .page-lead{color:#b0b0aa;max-width:640px;margin-top:16px;font-size:1.02rem}
+.page-meta{color:#8f8f89;margin-top:10px;font-size:.9rem}
 .breadcrumbs ol{display:flex;flex-wrap:wrap;gap:6px;list-style:none;font-size:.76rem;color:#8f8f8a;margin-bottom:28px}
 .breadcrumbs li+li::before{content:"/";margin-right:6px;color:#555}
 .breadcrumbs a:hover{color:var(--gold)}
@@ -123,6 +124,7 @@ mark.pending{background:rgba(232,189,82,.16);color:var(--gold2);padding:0 4px;bo
 .order-table,.data-table{width:100%;border-collapse:collapse;font-size:.86rem;margin-bottom:28px}
 .order-table th,.order-table td,.data-table th,.data-table td{padding:12px 10px;border-bottom:1px solid #2a2a2a;text-align:left;vertical-align:top}
 .order-table thead th,.data-table thead th{color:var(--gold);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase}
+@media (max-width:480px){.data-table{font-size:.8rem}.data-table th,.data-table td{padding:10px 6px;overflow-wrap:anywhere;word-break:break-word}.data-table thead th{letter-spacing:.06em}}
 .order-table td small{display:block;color:#888;font-size:.72rem}
 .order-table tfoot th{text-align:right;color:#a5a5a0;font-weight:500}
 
@@ -190,6 +192,8 @@ mark.pending{background:rgba(232,189,82,.16);color:var(--gold2);padding:0 4px;bo
 
 /* ---------- Painel do cliente ---------- */
 .account-section{padding-top:60px}
+/* Reserva a altura enquanto a conta carrega (login ou painel aparecem depois): evita o rodapé "pular" (CLS). */
+.account-wrap{min-height:calc(100vh - 160px)}
 .eyebrow-small{color:var(--gold);font-size:.62rem;letter-spacing:.18em;font-weight:700}
 .dash-tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:24px;overflow-x:auto}
 .dash-tabs button{background:none;border:0;border-bottom:2px solid transparent;color:#b0b0aa;padding:12px 16px;font-weight:600;font-size:.9rem;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:8px}
@@ -471,3 +475,13 @@ button.text-link:disabled{color:#666;cursor:not-allowed;text-decoration:none}
 .coupon-row{display:flex;gap:8px}
 .coupon-row input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:1px}
 .coupon-status{color:var(--muted,#a9a9a9);font-size:.8rem;min-height:1em}
+
+/* LGPD: pedidos do titular e comprovantes de aceite (conta do cliente) */
+.lgpd-form { margin-top: 1rem; display: grid; gap: .5rem; }
+.lgpd-form select, .lgpd-form textarea { width: 100%; }
+.lgpd-list { list-style: none; margin: .75rem 0 0; padding: 0; display: grid; gap: .6rem; font-size: .9rem; }
+.lgpd-list li { border-left: 2px solid var(--gold, #C9A54C); padding-left: .6rem; overflow-wrap: anywhere; }
+.lgpd-list p { margin: .3rem 0 0; }
+.lgpd-acceptances { margin-top: 1rem; }
+.lgpd-acceptances summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
