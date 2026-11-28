@@ -26,24 +26,8 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-// ---------- Animações de entrada ----------
-const reveals = document.querySelectorAll('.reveal');
-if (reduceMotion || !('IntersectionObserver' in window)) {
-  reveals.forEach((el) => el.classList.add('visible'));
-} else {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.12 }
-  );
-  reveals.forEach((el) => observer.observe(el));
-}
+// ---------- Animações (revelação, cena 3D do hero, tilt, diagramas): ver lib/motion.js ----------
+import './lib/motion.js';
 
 // ---------- Vídeo do VATEC OS: toca (sem som) quando a seção está visível ----------
 const productVideo = document.getElementById('cavaxProductVideo');
@@ -137,6 +121,13 @@ if (form) {
     const option = Array.from(form.service.options).find((o) => !o.disabled && o.value === preset);
     if (option) form.service.value = option.value;
   }
+  // Links da própria página (data-servico) também deixam o serviço escolhido antes de rolar até o formulário.
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[data-servico]');
+    if (!link || !form.service) return;
+    const option = Array.from(form.service.options).find((o) => !o.disabled && o.value === link.dataset.servico);
+    if (option) form.service.value = option.value;
+  });
   let channel = 'site';
   form.querySelectorAll('[data-channel]').forEach((btn) => btn.addEventListener('click', () => {
     channel = btn.dataset.channel;
